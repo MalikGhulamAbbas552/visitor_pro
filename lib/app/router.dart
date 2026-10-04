@@ -5,10 +5,29 @@ import '../features/auth/presentation/register_screen.dart';
 import '../features/home/presentation/dashboard_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 abstract final class AppRoutes {
-  static const onboarding = '/onboarding';
-  static const login = '/login';
-  static const register = '/register';
-  static const dashboard = '/dashboard';
+  static const onboarding =
+      '/onboarding';
+
+  static const login =
+      '/login';
+
+  static const register =
+      '/register';
+
+  static const dashboard =
+      '/dashboard';
+
+  static const checkIn =
+      '/check-in';
+
+  static const preRegister =
+      '/pre-register';
+
+  static const scanQr =
+      '/scan-qr';
+
+  static const visitors =
+      '/visitors';
 }
 
 GoRouter createRouter({
