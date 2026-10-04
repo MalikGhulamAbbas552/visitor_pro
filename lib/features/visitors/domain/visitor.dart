@@ -10,7 +10,7 @@ class Visitor {
     this.company,
     this.purpose,
     this.checkInAt,
-    this.checkOutAt,
+    this.checkOutAt, this.photoUrl,
   });
 
   final String id;
@@ -27,6 +27,8 @@ class Visitor {
 
   final DateTime? checkInAt;
   final DateTime? checkOutAt;
+
+  final String? photoUrl;
 
   factory Visitor.fromMap(
       Map<String, dynamic> map,
@@ -60,6 +62,7 @@ class Visitor {
           : DateTime.parse(
         map['check_out_at'] as String,
       ),
+      photoUrl: map['photo_url'] as String?,
     );
   }
 }

@@ -4,6 +4,7 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
 import '../features/home/presentation/dashboard_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
+import '../features/check_in/presentation/check_in_screen.dart';
 abstract final class AppRoutes {
   static const onboarding =
       '/onboarding';
@@ -66,6 +67,12 @@ GoRouter createRouter({
         path: AppRoutes.dashboard,
         builder: (_, _) =>
         const DashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.checkIn,
+        builder: (context, state) {
+          return const CheckInScreen();
+        },
       ),
     ],
   );

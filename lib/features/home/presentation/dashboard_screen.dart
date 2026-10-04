@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../auth/data/auth_service.dart';
 import '../../visitors/data/visitor_service.dart';
 import '../../visitors/domain/visitor.dart';
+import '../../visitors/presentation/widgets/visitor_avatar.dart';
 import '../domain/dashboard_stats.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -737,22 +738,10 @@ class _VisitorTile
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 23,
-              backgroundColor:
-              AppColors.lightBlue,
-              child: Text(
-                _initials(
-                  visitor.fullName,
-                ),
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight:
-                  FontWeight.w700,
-                ),
-              ),
+            VisitorAvatar(
+              name: visitor.fullName,
+              photoPath: visitor.photoUrl,
             ),
-
             const SizedBox(width: 12),
 
             Expanded(
