@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../features/onboarding/presentation/onboarding_screen.dart';
+import 'router.dart';
 import 'theme.dart';
 
 class VisitorProApp extends StatelessWidget {
@@ -8,11 +8,11 @@ class VisitorProApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Visitor Pro',
+      title: 'VisitorPro',
       theme: AppTheme.lightTheme,
-      home: const OnboardingScreen(),
+      routerConfig: appRouter,
     );
   }
 }

@@ -1,194 +1,140 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/widgets/primary_button.dart';
+import '../../../core/services/preferences_service.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final PageController _pageController = PageController();
+
+  int _currentPage = 0;
+  bool _isFinishing = false;
+
+  final List<OnboardingItem> _pages = const [
+    OnboardingItem(
+      icon: Icons.badge_rounded,
+      secondaryIcon: Icons.apartment_rounded,
+      title: 'Secure Visits,\nSmarter Management',
+      description:
+      'Register and manage every visitor securely '
+          'from one simple workspace.',
+    ),
+    OnboardingItem(
+      icon: Icons.qr_code_scanner_rounded,
+      secondaryIcon: Icons.verified_user_rounded,
+      title: 'Fast & Secure\nCheck-In',
+      description:
+      'Scan visitor QR codes for a smooth, secure '
+          'and paperless check-in experience.',
+    ),
+    OnboardingItem(
+      icon: Icons.analytics_rounded,
+      secondaryIcon: Icons.notifications_active_rounded,
+      title: 'Manage Everything\nIn One Place',
+      description:
+      'Track visitors, pre-register guests, receive '
+          'notifications and view useful reports.',
+    ),
+  ];
+
+  bool get _isLastPage => _currentPage == _pages.length - 1;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _nextPage() async {
+    if (_isLastPage) {
+      await _finishOnboarding();
+      return;
+    }
+
+    await _pageController.nextPage(
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  Future<void> _finishOnboarding() async {
+    if (_isFinishing) return;
+
+    setState(() => _isFinishing = true);
+
+    await PreferencesService.completeOnboarding();
+
+    if (!mounted) return;
+
+    context.go(AppRoutes.login);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: -80,
-            right: -80,
-            child: Container(
-              width: 220,
-              height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.06,
-                  ),
-                ),
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: _buildLogo(),
             ),
-          ),
-          Positioned(
-            bottom: 130,
-              left: -100,
-              child: Container(
-                width: 220,
-                height: 220,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.04),
-                ),
-              ),
-          ),
-          SafeArea(
-            child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 20,
-                ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 25),
-                  _buildLogo()
-                      .animate()
-                      .fadeIn(
-                    duration: 700.ms,
-                  )
-                      .scale(
-                    begin: const Offset(.7, .7),
-                    end: const Offset(1, 1),
-                    curve: Curves.easeOutBack,
-                  ),
-                  const SizedBox(height: 45),
 
-
-              // Main illustration
-              Expanded(
-                child: Center(
-                  child: _buildIllustration()
-                      .animate()
-                      .fadeIn(
-                    delay: 300.ms,
-                    duration: 700.ms,
-                  )
-                      .slideY(
-                    begin: .15,
-                    end: 0,
-                    curve: Curves.easeOut,
-                  ),
-                ),
-              ), const SizedBox(height: 45),
-                  const Text(
-                    'Secure Visits, \nEasy Management',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 26,
-                      height: 1.25,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ).animate().fadeIn(
-                    delay: 500.ms,
-                    duration: 600.ms,
-                  ).slideY(
-                    begin: .25,
-                    end: 0,
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Register, check in, and manage visitors\n'
-                        'easily, safely and securely.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.6,
-                      color: AppColors.textSecondary,
-                    ),
-
-                  ).animate()
-                      .fadeIn(
-                    delay: 650.ms,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _indicator(true),
-                      _indicator(false),
-                      _indicator(false),
-                    ],
-                  ).animate()
-                      .fadeIn(
-                    delay: 800.ms,
-                  ),
-                  const SizedBox(height: 30),
-                  PrimaryButton(
-                    text: 'Get Started',
-                    icon: Icons.arrow_forward_rounded,
-                    onPressed: (){},
-                  ).animate()
-                      .fadeIn(
-                    delay: 900.ms,
-                  )
-                      .slideY(
-                    begin: .3,
-                    end: 0,
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Already have an account? ',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // Login screen comes next
-                        },
-                        child: Text(
-                          'Login',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ).animate()
-                      .fadeIn(
-                    delay: 1000.ms,
-                  ),
-                  const SizedBox(height: 10),
-                ],
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _pages.length,
+                physics: const BouncingScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  return _OnboardingPage(
+                    item: _pages[index],
+                    pageIndex: index,
+                  );
+                },
               ),
             ),
-          ),
-        ],
+
+            _buildBottomSection(),
+          ],
+        ),
       ),
     );
   }
+
   Widget _buildLogo() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 46,
-          height: 46,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
                 AppColors.primary,
-                const Color(0xFF34A5FF),
+                Color(0xFF3CA8FF),
               ],
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: .25),
+                color: AppColors.primary.withValues(alpha: .20),
                 blurRadius: 15,
                 offset: const Offset(0, 6),
               ),
@@ -197,16 +143,13 @@ class OnboardingScreen extends StatelessWidget {
           child: const Icon(
             Icons.badge_rounded,
             color: Colors.white,
-            size: 27,
           ),
         ),
-
-        const SizedBox(width: 12),
-
+        const SizedBox(width: 10),
         const Text(
           'VisitorPro',
           style: TextStyle(
-            fontSize: 25,
+            fontSize: 23,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
@@ -215,9 +158,226 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildBottomSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 22),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              _pages.length,
+                  (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                width: _currentPage == index ? 26 : 8,
+                height: 8,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? AppColors.primary
+                      : AppColors.primary.withValues(alpha: .18),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton(
+              onPressed: _isFinishing ? null : _nextPage,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                disabledBackgroundColor:
+                AppColors.primary.withValues(alpha: .65),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: _isFinishing
+                    ? const SizedBox.square(
+                  key: ValueKey('loading'),
+                  dimension: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.3,
+                    color: Colors.white,
+                  ),
+                )
+                    : Row(
+                  key: ValueKey(_isLastPage),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _isLastPage ? 'Get Started' : 'Next',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 17),
+
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: _isLastPage
+                ? const SizedBox(
+              key: ValueKey('empty'),
+              height: 20,
+            )
+                : TextButton(
+              key: const ValueKey('skip'),
+              onPressed: _finishOnboarding,
+              child: const Text('Skip'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OnboardingPage extends StatefulWidget {
+  const _OnboardingPage({
+    required this.item,
+    required this.pageIndex,
+  });
+
+  final OnboardingItem item;
+  final int pageIndex;
+
+  @override
+  State<_OnboardingPage> createState() => _OnboardingPageState();
+}
+
+class _OnboardingPageState extends State<_OnboardingPage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  late final Animation<double> _fadeAnimation;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 750),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, .08),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: .85,
+      end: 1,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 26),
+          child: Column(
+            children: [
+              const Spacer(),
+
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: _buildIllustration(),
+              ),
+
+              const SizedBox(height: 45),
+
+              Text(
+                widget.item.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 27,
+                  height: 1.25,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              Text(
+                widget.item.description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.65,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+
+              const Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildIllustration() {
     return SizedBox(
-      height: 250,
+      height: 260,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -226,108 +386,53 @@ class OnboardingScreen extends StatelessWidget {
             height: 230,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.lightBlue,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: .08),
-                  blurRadius: 40,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-          ),
-
-          Positioned(
-            bottom: 25,
-            child: Container(
-              width: 210,
-              height: 90,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: .06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: .13),
+                  AppColors.primary.withValues(alpha: .025),
                 ],
               ),
             ),
           ),
 
-          Positioned(
-            top: 55,
-            child: Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: const Icon(
-                Icons.person_rounded,
-                color: Colors.white,
-                size: 55,
-              ),
-            )
-                .animate(
-              onPlay: (controller) => controller.repeat(
-                reverse: true,
-              ),
-            )
-                .moveY(
-              begin: -5,
-              end: 5,
-              duration: 1800.ms,
-              curve: Curves.easeInOut,
+          Container(
+            width: 135,
+            height: 135,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(36),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: .13),
+                  blurRadius: 35,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            child: Icon(
+              widget.item.icon,
+              size: 67,
+              color: AppColors.primary,
             ),
           ),
 
           Positioned(
-            right: 30,
-            top: 60,
+            right: 25,
+            top: 35,
             child: _floatingIcon(
-              Icons.qr_code_scanner_rounded,
-            ).animate(
-              onPlay: (controller) => controller.repeat(
-                reverse: true,
-              ),
-            )
-                .moveY(
-              begin: -8,
-              end: 8,
-              duration: 2200.ms,
+              widget.item.secondaryIcon,
             ),
           ),
 
           Positioned(
             left: 25,
-            top: 100,
+            bottom: 38,
             child: _floatingIcon(
-              Icons.verified_user_rounded,
-            )
-                .animate(
-              onPlay: (controller) => controller.repeat(
-                reverse: true,
-              ),
-            )
-                .moveY(
-              begin: 7,
-              end: -7,
-              duration: 2000.ms,
-            ),
-          ),
-
-          const Positioned(
-            bottom: 52,
-            child: Text(
-              'Smart Visitor Management',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-                fontSize: 13,
-              ),
+              widget.pageIndex == 0
+                  ? Icons.verified_user_rounded
+                  : widget.pageIndex == 1
+                  ? Icons.flash_on_rounded
+                  : Icons.people_alt_rounded,
             ),
           ),
         ],
@@ -337,39 +442,38 @@ class OnboardingScreen extends StatelessWidget {
 
   Widget _floatingIcon(IconData icon) {
     return Container(
-      width: 48,
-      height: 48,
+      width: 52,
+      height: 52,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(17),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: .08),
-            blurRadius: 15,
-            offset: const Offset(0, 7),
+            color: Colors.black.withValues(alpha: .07),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Icon(
         icon,
         color: AppColors.primary,
-        size: 23,
+        size: 25,
       ),
     );
   }
+}
 
-  Widget _indicator(bool active) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: active ? 24 : 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: active
-            ? AppColors.primary
-            : AppColors.primary.withValues(alpha: .18),
-        borderRadius: BorderRadius.circular(20),
-      ),
-    );
-  }
+class OnboardingItem {
+  const OnboardingItem({
+    required this.icon,
+    required this.secondaryIcon,
+    required this.title,
+    required this.description,
+  });
+
+  final IconData icon;
+  final IconData secondaryIcon;
+  final String title;
+  final String description;
 }
