@@ -4,7 +4,12 @@ import 'router.dart';
 import 'theme.dart';
 
 class VisitorProApp extends StatelessWidget {
-  const VisitorProApp({super.key});
+  const VisitorProApp({
+    super.key,
+    required this.hasCompletedOnboarding,
+  });
+
+  final bool hasCompletedOnboarding;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +17,10 @@ class VisitorProApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'VisitorPro',
       theme: AppTheme.lightTheme,
-      routerConfig: appRouter,
+      routerConfig: createRouter(
+        hasCompletedOnboarding:
+        hasCompletedOnboarding,
+      ),
     );
   }
 }

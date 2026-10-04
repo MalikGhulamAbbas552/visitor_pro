@@ -1,59 +1,53 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import '../features/auth/data/auth_service.dart';
 import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/presentation/register_screen.dart';
+import '../features/home/presentation/dashboard_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
-
 abstract final class AppRoutes {
-  static const onboarding = '/';
+  static const onboarding = '/onboarding';
   static const login = '/login';
+  static const register = '/register';
+  static const dashboard = '/dashboard';
 }
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.onboarding,
-  routes: [
-    GoRoute(
-      path: AppRoutes.onboarding,
-      builder: (context, state) {
-        return const OnboardingScreen();
-      },
-    ),
+GoRouter createRouter({
+  required bool hasCompletedOnboarding,
+}) {
+  final loggedIn =
+      AuthService.instance.currentSession != null;
 
-    GoRoute(
-      path: AppRoutes.login,
-      pageBuilder: (context, state) {
-        return CustomTransitionPage<void>(
-          key: state.pageKey,
-          transitionDuration:
-          const Duration(milliseconds: 500),
-          reverseTransitionDuration:
-          const Duration(milliseconds: 350),
-          child: const LoginScreen(),
-          transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-              ) {
-            final curvedAnimation = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-              reverseCurve: Curves.easeInCubic,
-            );
+  return GoRouter(
+    initialLocation: !hasCompletedOnboarding
+        ? AppRoutes.onboarding
+        : loggedIn
+        ? AppRoutes.dashboard
+        : AppRoutes.login,
 
-            return FadeTransition(
-              opacity: curvedAnimation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(.08, 0),
-                  end: Offset.zero,
-                ).animate(curvedAnimation),
-                child: child,
-              ),
-            );
-          },
-        );
-      },
-    ),
-  ],
-);
+    routes: [
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (_, _) =>
+        const OnboardingScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (_, _) =>
+        const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (_, _) =>
+        const RegisterScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.dashboard,
+        builder: (_, _) =>
+        const DashboardScreen(),
+      ),
+    ],
+  );
+}
